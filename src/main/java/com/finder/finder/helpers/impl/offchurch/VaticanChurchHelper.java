@@ -1,9 +1,7 @@
 package com.finder.finder.helpers.impl.offchurch;
 
-import com.darkprograms.speech.translator.GoogleTranslate;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
-import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,19 +20,17 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-public class AlbanianChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
-
-    private static Logger logger = LogManager.getLogger(AlbanianChurchHelper.class);
+public class VaticanChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
+    private static Logger logger = LogManager.getLogger(VaticanChurchHelper.class);
+    private static final int NEWS_COUNT = 10;
 
     @Override
     public List<Item> getItems() {
-
         HttpResponse<String> standardHttpResponse = null;
         try {
-            logger.info("Starting to get news from AlbanianChurch");
-            standardHttpResponse = super.getStandardHttpResponse("https://orthodoxalbania.org/2020/en/news-en/");
-        } catch (
-                IOException exception) {
+            logger.info("Starting to get news from PolandChurch");
+            standardHttpResponse = super.getStandardHttpResponse("https://www.vaticannews.va/uk.rss.xml");
+        } catch (IOException exception) {
             exception.printStackTrace();
         } catch (InterruptedException exception) {
             exception.printStackTrace();
@@ -42,47 +38,38 @@ public class AlbanianChurchHelper extends AbstractRequestSenderService implement
         logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
-            Elements elements = document.getElementsByClass("recent-posts-content");
-            List<Item> items = new ArrayList<>();
-            for (Element element : elements) {
+
+            Elements elements = document.select("item");
+
+            List<Item> itemFulls = new ArrayList<>();
+            for (int i = 0; i < NEWS_COUNT; i++) {
+                Element element = elements.get(i);
                 if (isNewPublications(element)) {
                     Item item = new Item();
-
                     populateNewsItem(element, item);
-
-                    items.add(item);
+                    itemFulls.add(item);
                 }
             }
             logger.info("Items have been parsed.");
-            return items;
+            return itemFulls;
         }
         return new ArrayList<>();
     }
 
     private void populateNewsItem(Element element, Item item) {
-        Element entryTitle = element.getElementsByClass("entry-title").get(0);
-        try {
-            item.setTitle(GoogleTranslate.translate("el", "uk", entryTitle.getElementsByTag("a").text()));
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        item.setLink(entryTitle.getElementsByTag("a").attr("href"));
+        String title = element.select("title").get(0).text().replace("<![CDATA[", "");
+        item.setTitle(title.replace("]]>", ""));
+        String description = element.select("description").get(0).text().replace(">Читати все</a></p> <p>&nbsp;</p>", "");
 
-        String text = element.getElementsByTag("p").text();
-        if (text != null) {
-            try {
-                item.setDescription(GoogleTranslate.translate("el", "uk", text));
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        }
+        item.setDescription(description);
+        item.setLink(element.childNodes().get(4).toString());
     }
 
     private boolean isNewPublications(Element element) {
-        String datetime = element.getElementsByClass("updated").text();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Elements pubdate = element.select("pubdate");
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
         try {
-            Date parsedDate = formatter.parse(datetime);
+            Date parsedDate = formatter.parse(pubdate.get(0).text());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String formattedDate = simpleDateFormat.format(parsedDate);
 

@@ -2,7 +2,10 @@ package com.finder.finder.helpers.impl.offchurch;
 
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
+import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,14 +22,16 @@ import java.util.List;
 @Component
 public class AntiochChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
 
-//    old site
+    //    old site
 //    by request - 403 Forbidden
+    private static Logger logger = LogManager.getLogger(AntiochChurchHelper.class);
 
     @Override
     public List<Item> getItems() {
 
         HttpResponse<String> standardHttpResponse = null;
         try {
+            logger.info("Starting to get news from AntiochChurch");
             standardHttpResponse = super.getStandardHttpResponse("https://www.antiochpatriarchate.org/en/category/news/9/");
         } catch (
                 IOException exception) {
@@ -34,6 +39,7 @@ public class AntiochChurchHelper extends AbstractRequestSenderService implements
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
+        logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
         }

@@ -4,6 +4,8 @@ import com.darkprograms.speech.translator.GoogleTranslate;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
 import com.finder.finder.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,16 +23,20 @@ import java.util.List;
 @Component
 public class RomfeaNewsHelper extends AbstractRequestSenderService implements ItemsHandler {
 
+    private static Logger logger = LogManager.getLogger(RomfeaNewsHelper.class);
+
     @Override
     public List<Item> getItems() {
         HttpResponse<String> standardHttpResponse = null;
         try {
+            logger.info("Starting to get news from Romfea");
             standardHttpResponse = super.getStandardHttpResponse("https://www.romfea.gr/component/ninjarsssyndicator/?feed_id=1&format=raw");
         } catch (IOException exception) {
             exception.printStackTrace();
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
+        logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
 
@@ -44,6 +50,7 @@ public class RomfeaNewsHelper extends AbstractRequestSenderService implements It
                     items.add(item);
                 }
             }
+            logger.info("Items have been parsed.");
             return items;
         }
         return new ArrayList<>();

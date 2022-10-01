@@ -2,7 +2,10 @@ package com.finder.finder.helpers.impl.offchurch;
 
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
+import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
@@ -16,8 +19,10 @@ import java.util.List;
 @Component
 public class CyprusChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
 
-//     they don't have the news, but take a look again later
+    //     they don't have the news, but take a look again later
 //    https://churchofcyprus.org.cy/
+    private static Logger logger = LogManager.getLogger(CyprusChurchHelper.class);
+
     @Override
     public List<Item> getItems() {
 

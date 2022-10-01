@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -30,10 +29,9 @@ public class FinderPollingBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        SendMessage message = new SendMessage();
         if (update != null && update.hasMessage()) {
             try {
-                execute(menuHandler.getDefaultMenu(message, update));
+                execute(menuHandler.getDefaultMenu(update.getMessage().getChatId()));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -41,6 +39,10 @@ public class FinderPollingBot extends TelegramLongPollingBot {
         if (update != null && update.hasCallbackQuery()) {
             try {
                 execute(menuHandler.handle(update));
+                if (!update.getCallbackQuery().getData().equals("callback_single")) {
+                    execute(menuHandler
+                            .getDefaultMenu(update.getCallbackQuery().getMessage().getChatId()));
+                }
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }

@@ -4,10 +4,14 @@ import com.darkprograms.speech.translator.GoogleTranslate;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
 import com.finder.finder.model.Item;
+import com.finder.finder.service.UpdateService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,17 +24,22 @@ import java.util.List;
 
 @Component
 public class PolandChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
+    private static Logger logger = LogManager.getLogger(PolandChurchHelper.class);
+
+    private UpdateService updateService;
 
     @Override
     public List<Item> getItems() {
         HttpResponse<String> standardHttpResponse = null;
         try {
+            logger.info("Starting to get news from PolandChurch");
             standardHttpResponse = super.getStandardHttpResponse("https://www.orthodox.pl/aktualnosci/feed/");
         } catch (IOException exception) {
             exception.printStackTrace();
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
+        logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
 
@@ -44,6 +53,7 @@ public class PolandChurchHelper extends AbstractRequestSenderService implements 
                     itemFulls.add(item);
                 }
             }
+            logger.info("Items have been parsed.");
             return itemFulls;
         }
         return new ArrayList<>();
@@ -77,5 +87,10 @@ public class PolandChurchHelper extends AbstractRequestSenderService implements 
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Autowired
+    public void setUpdateService(UpdateService updateService) {
+        this.updateService = updateService;
     }
 }

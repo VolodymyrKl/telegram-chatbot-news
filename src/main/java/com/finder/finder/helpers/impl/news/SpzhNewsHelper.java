@@ -3,6 +3,8 @@ package com.finder.finder.helpers.impl.news;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
 import com.finder.finder.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,18 +20,21 @@ import java.util.List;
 public class SpzhNewsHelper extends AbstractRequestSenderService implements ItemsHandler {
 
     private static final String URL_START = "https://spzh.news";
-    public static final int NEWS_COUNT = 16;
+    private static final int NEWS_COUNT = 16;
+    private static Logger logger = LogManager.getLogger(SpzhNewsHelper.class);
 
     @Override
     public List<Item> getItems() {
         HttpResponse<String> standardHttpResponse = null;
         try {
+            logger.info("Starting to get news from SPZH");
             standardHttpResponse = super.getStandardHttpResponse("https://spzh.news/ua/news");
         } catch (IOException exception) {
             exception.printStackTrace();
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
+        logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
 
@@ -44,6 +49,7 @@ public class SpzhNewsHelper extends AbstractRequestSenderService implements Item
                     items.add(item);
                 }
             }
+            logger.info("Items have been parsed.");
             return items;
         }
         return new ArrayList<>();

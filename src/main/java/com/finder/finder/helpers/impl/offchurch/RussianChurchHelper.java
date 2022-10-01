@@ -3,6 +3,8 @@ package com.finder.finder.helpers.impl.offchurch;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
 import com.finder.finder.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,12 +23,14 @@ import java.util.List;
 public class RussianChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
 
     private static final String URL_START = "http://www.patriarchia.ru";
+    private static Logger logger = LogManager.getLogger(RussianChurchHelper.class);
 
     @Override
     public List<Item> getItems() {
 
         HttpResponse<String> standardHttpResponse = null;
         try {
+            logger.info("Starting to get news from RussianChurch");
             standardHttpResponse = super.getStandardHttpResponse("http://www.patriarchia.ru/db/news/");
         } catch (
                 IOException exception) {
@@ -34,6 +38,7 @@ public class RussianChurchHelper extends AbstractRequestSenderService implements
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
+        logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
             List<Item> items = new ArrayList<>();
@@ -41,6 +46,7 @@ public class RussianChurchHelper extends AbstractRequestSenderService implements
             populateNews(document, items, "top_news");
             populateNews(document, items, "news");
 
+            logger.info("Items have been parsed.");
             return items;
         }
         return new ArrayList<>();

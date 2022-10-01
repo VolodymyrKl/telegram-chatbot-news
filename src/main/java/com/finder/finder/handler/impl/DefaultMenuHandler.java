@@ -38,6 +38,8 @@ public class DefaultMenuHandler implements MenuHandler {
     private AmericaChurchHelper americaChurchHelper;
     private OCUChurchHelper ocuChurchHelper;
     private GOAAChurchHelper goaaChurchHelper;
+    private UgccChurchHelper ugccChurchHelper;
+    private VaticanChurchHelper vaticanChurchHelper;
 
     private RomfeaNewsHelper romfeaNewsHelper;
     private RisuNewsHelper risuNewsHelper;
@@ -51,34 +53,119 @@ public class DefaultMenuHandler implements MenuHandler {
         EditMessageText message = getEditMessage(messageId, chatId);
 
         switch (update.getCallbackQuery().getData()) {
-            case "callback_single" -> {
+            case "callback_single": {
                 return message;
             }
-            case "callback_ppc" -> {
+            case "callback_ppc": {
             }
-            case "callback_ocu" -> defaultSendMessageService.sendChurchNews(message, ocuChurchHelper);
-            case "callback_romfea" -> defaultSendMessageService.sendReligionNews(message, romfeaNewsHelper);
-            case "callback_risu" -> defaultSendMessageService.sendReligionNews(message, risuNewsHelper);
-            case "callback_spzh" -> defaultSendMessageService.sendReligionNews(message, spzhNewsHelper);
-//            case "callback_okum" -> defaultSendMessageService.sendChurchNews(message, );
-            case "callback_alex" -> defaultSendMessageService.sendChurchNews(message, alexandriaChurchHelper);
-            case "callback_ant" -> defaultSendMessageService.sendChurchNews(message, antiochChurchHelper);
-            case "callback_jer" -> defaultSendMessageService.sendChurchNews(message, jerusalemChurchHelper);
-            case "callback_rus" -> defaultSendMessageService.sendChurchNews(message, russianChurchHelper);
-//            case "callback_ser" -> defaultSendMessageService.sendChurchNews(message, serbianChurchHelper);
-            case "callback_bul" -> defaultSendMessageService.sendChurchNews(message, bulgarianChurchHelper);
-            case "callback_rom" -> defaultSendMessageService.sendChurchNews(message, romanianChurchHelper);
-            case "callback_geo" -> defaultSendMessageService.sendChurchNews(message, georgianChurchHelper);
-            case "callback_cyp" -> defaultSendMessageService.sendChurchNews(message, cyprusChurchHelper);
-            case "callback_gre" -> defaultSendMessageService.sendChurchNews(message, greeceChurchHelper);
-            case "callback_alb" -> defaultSendMessageService.sendChurchNews(message, albanianChurchHelper);
-            case "callback_pol" -> defaultSendMessageService.sendChurchNews(message, polandChurchHelper);
-            case "callback_cze" -> defaultSendMessageService.sendChurchNews(message, czechChurchHelper);
-            case "callback_ame" -> defaultSendMessageService.sendChurchNews(message, americaChurchHelper);
-            case "callback_goaa" -> defaultSendMessageService.sendChurchNews(message, goaaChurchHelper);
-            default -> {
+            case "callback_ocu": {
+                defaultSendMessageService.sendChurchNews(message, ocuChurchHelper);
                 message.setReplyMarkup(keyboardService.getMenuKeyboard());
-                return message;
+                break;
+            }
+            case "callback_romfea": {
+                defaultSendMessageService.sendReligionNews(message, romfeaNewsHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_risu": {
+                defaultSendMessageService.sendReligionNews(message, risuNewsHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_spzh": {
+                defaultSendMessageService.sendReligionNews(message, spzhNewsHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_okum": {
+                message.setText("Розробка ще не завершена, оберіть інший варіант.");
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_alex": {
+                defaultSendMessageService.sendChurchNews(message, alexandriaChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_ant": {
+                defaultSendMessageService.sendChurchNews(message, antiochChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_jer": {
+                defaultSendMessageService.sendChurchNews(message, jerusalemChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_rus": {
+                defaultSendMessageService.sendChurchNews(message, russianChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+//            case "callback_ser" : defaultSendMessageService.sendChurchNews(message, serbianChurchHelper); break;}
+            case "callback_bul": {
+                defaultSendMessageService.sendChurchNews(message, bulgarianChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_rom": {
+                defaultSendMessageService.sendChurchNews(message, romanianChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_geo": {
+                defaultSendMessageService.sendChurchNews(message, georgianChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_cyp": {
+                defaultSendMessageService.sendChurchNews(message, cyprusChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_gre": {
+                defaultSendMessageService.sendChurchNews(message, greeceChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_alb": {
+                defaultSendMessageService.sendChurchNews(message, albanianChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_pol": {
+                defaultSendMessageService.sendChurchNews(message, polandChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_cze": {
+                defaultSendMessageService.sendChurchNews(message, czechChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_ame": {
+                defaultSendMessageService.sendChurchNews(message, americaChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_goaa": {
+                defaultSendMessageService.sendChurchNews(message, goaaChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_ugcc": {
+                defaultSendMessageService.sendChurchNews(message, ugccChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            case "callback_vat": {
+                defaultSendMessageService.sendChurchNews(message, vaticanChurchHelper);
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
+                break;
+            }
+            default: {
+                message.setReplyMarkup(keyboardService.getMenuKeyboard());
             }
         }
         return message;
@@ -94,8 +181,9 @@ public class DefaultMenuHandler implements MenuHandler {
     }
 
     @Override
-    public SendMessage getDefaultMenu(SendMessage message, Update update) {
-        message.setChatId(String.valueOf(update.getMessage().getChatId()));
+    public SendMessage getDefaultMenu(Long id) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(id));
         message.setText("Зробити вибір:");
         message.setReplyMarkup(keyboardService.getMenuKeyboard());
         return message;
@@ -209,5 +297,15 @@ public class DefaultMenuHandler implements MenuHandler {
     @Autowired
     public void setSpzhNewsHelper(SpzhNewsHelper spzhNewsHelper) {
         this.spzhNewsHelper = spzhNewsHelper;
+    }
+
+    @Autowired
+    public void setUgccChurchHelper(UgccChurchHelper ugccChurchHelper) {
+        this.ugccChurchHelper = ugccChurchHelper;
+    }
+
+    @Autowired
+    public void setVaticanChurchHelper(VaticanChurchHelper vaticanChurchHelper) {
+        this.vaticanChurchHelper = vaticanChurchHelper;
     }
 }

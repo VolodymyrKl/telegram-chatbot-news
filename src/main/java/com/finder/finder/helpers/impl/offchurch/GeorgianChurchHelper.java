@@ -4,6 +4,8 @@ import com.darkprograms.speech.translator.GoogleTranslate;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
 import com.finder.finder.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,11 +23,14 @@ import java.util.List;
 @Component
 public class GeorgianChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
 
+    private static Logger logger = LogManager.getLogger(GeorgianChurchHelper.class);
+
     @Override
     public List<Item> getItems() {
 
         HttpResponse<String> standardHttpResponse = null;
         try {
+            logger.info("Starting to get news from GeorgianChurch");
             standardHttpResponse = super.getStandardHttpResponse("https://patriarchate.ge/news/category/1");
         } catch (
                 IOException exception) {
@@ -33,6 +38,7 @@ public class GeorgianChurchHelper extends AbstractRequestSenderService implement
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
+        logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
             Elements elements = document.getElementsByClass("q-item");
@@ -46,6 +52,7 @@ public class GeorgianChurchHelper extends AbstractRequestSenderService implement
                     items.add(item);
                 }
             }
+            logger.info("Items have been parsed.");
             return items;
         }
         return new ArrayList<>();

@@ -16,7 +16,7 @@ public abstract class AbstractRequestSenderService {
         HttpClient client = HttpClient.newBuilder()
                 .version(Version.HTTP_1_1)
                 .followRedirects(Redirect.NORMAL)
-                .connectTimeout(Duration.ofSeconds(7))
+                .connectTimeout(Duration.ofSeconds(10))
                 .build();
 
         return client.send(getHttpRequest(url), BodyHandlers.ofString());

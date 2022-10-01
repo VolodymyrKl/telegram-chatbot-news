@@ -3,7 +3,10 @@ package com.finder.finder.helpers.impl.offchurch;
 import com.darkprograms.speech.translator.GoogleTranslate;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
+import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,12 +26,14 @@ public class CzechChurchHelper extends AbstractRequestSenderService implements I
 
     private static final int MAX_SIZE_STRING = 120;
     private static final String TREE_POINTS = "...";
+    private static Logger logger = LogManager.getLogger(CzechChurchHelper.class);
 
     @Override
     public List<Item> getItems() {
 
         HttpResponse<String> standardHttpResponse = null;
         try {
+            logger.info("Starting to get news from CzechChurch");
             standardHttpResponse = super.getStandardHttpResponse("https://www.pp-eparchie.cz/feed/");
         } catch (
                 IOException exception) {
@@ -36,6 +41,7 @@ public class CzechChurchHelper extends AbstractRequestSenderService implements I
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
+        logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
             Elements elements = document.select("item");
@@ -49,6 +55,7 @@ public class CzechChurchHelper extends AbstractRequestSenderService implements I
                     itemFulls.add(item);
                 }
             }
+            logger.info("Items have been parsed.");
             return itemFulls;
         }
         return new ArrayList<>();

@@ -3,7 +3,10 @@ package com.finder.finder.helpers.impl.offchurch;
 import com.darkprograms.speech.translator.GoogleTranslate;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
+import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,12 +25,14 @@ import java.util.List;
 public class GreeceChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
 
     private static final String URL_START = "https://www.ecclesia.gr/epikairotita/";
+    private static Logger logger = LogManager.getLogger(GreeceChurchHelper.class);
 
     @Override
     public List<Item> getItems() {
 
         HttpResponse<String> standardHttpResponse = null;
         try {
+            logger.info("Starting to get news from GreeceChurch");
             standardHttpResponse = super.getStandardHttpResponse("https://www.ecclesia.gr/epikairotita/default.asp");
         } catch (
                 IOException exception) {
@@ -35,6 +40,7 @@ public class GreeceChurchHelper extends AbstractRequestSenderService implements 
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
+        logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
             Elements elements = document.getElementsByClass("div_epikairotita");
@@ -48,6 +54,7 @@ public class GreeceChurchHelper extends AbstractRequestSenderService implements 
                     items.add(item);
                 }
             }
+            logger.info("Items have been parsed.");
             return items;
         }
         return new ArrayList<>();

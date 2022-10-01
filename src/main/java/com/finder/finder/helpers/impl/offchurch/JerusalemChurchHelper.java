@@ -2,7 +2,10 @@ package com.finder.finder.helpers.impl.offchurch;
 
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
+import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,11 +23,14 @@ import java.util.List;
 @Component
 public class JerusalemChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
 
+    private static Logger logger = LogManager.getLogger(JerusalemChurchHelper.class);
+
     @Override
     public List<Item> getItems() {
 
         HttpResponse<String> standardHttpResponse = null;
         try {
+            logger.info("Starting to get news from JerusalemChurch");
             standardHttpResponse = super.getStandardHttpResponse("https://ru.jerusalem-patriarchate.info/blog");
         } catch (
                 IOException exception) {
@@ -32,6 +38,7 @@ public class JerusalemChurchHelper extends AbstractRequestSenderService implemen
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
+        logger.info("News are received without issues, starting parsing.");
         if (standardHttpResponse != null) {
             Document document = Jsoup.parse(standardHttpResponse.body());
             Elements content = document.getElementsByClass("content");
@@ -45,6 +52,7 @@ public class JerusalemChurchHelper extends AbstractRequestSenderService implemen
                     itemFulls.add(item);
                 }
             }
+            logger.info("Items have been parsed.");
             return itemFulls;
         }
         return new ArrayList<>();
