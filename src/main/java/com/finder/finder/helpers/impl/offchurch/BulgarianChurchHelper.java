@@ -3,7 +3,6 @@ package com.finder.finder.helpers.impl.offchurch;
 import com.darkprograms.speech.translator.GoogleTranslate;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
-import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -101,9 +100,8 @@ public class BulgarianChurchHelper extends AbstractRequestSenderService implemen
 
         LocalDate dateOfPublication = LocalDate.parse(formattedDate);
         LocalDate currentDate = LocalDate.now();
-
-//            return dateOfPublication.isBefore(currentDate);
-        return true;
+// added "!"
+        return !dateOfPublication.isBefore(currentDate);
     }
 
     private String getCurrentLink(Element element) {

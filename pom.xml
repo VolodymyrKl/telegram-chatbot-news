@@ -8,15 +8,16 @@
         <version>2.3.3.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+    <packaging>war</packaging>
     <groupId>com.finder</groupId>
     <artifactId>finder</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>finder</name>
     <description>Finder project</description>
 
-    <properties>
-        <java.version>11</java.version>
-    </properties>
+<!--    <properties>-->
+<!--        <java.version>13</java.version>-->
+<!--    </properties>-->
     <repositories>
         <repository>
             <id>jitpack.io</id>
@@ -29,12 +30,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>mysql</groupId>-->
-<!--            <artifactId>mysql-connector-java</artifactId>-->
-<!--            <version>8.0.21</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.21</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -45,7 +49,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-spring-boot-starter</artifactId>
@@ -56,22 +59,20 @@
             <artifactId>telegrambots</artifactId>
             <version>6.0.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.10.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.27.0-GA</version>
+        </dependency>
         <dependency>
             <groupId>com.github.pengrad</groupId>
             <artifactId>java-telegram-bot-api</artifactId>
             <version>6.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-telegram</artifactId>
-            <version>2.19.1</version>
         </dependency>
         <dependency>
             <groupId>org.telegram</groupId>
@@ -79,11 +80,6 @@
             <version>6.0.1</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>31.1-jre</version>
-        </dependency>
         <dependency>
             <groupId>com.github.goxr3plus</groupId>
             <artifactId>java-google-speech-api</artifactId>

@@ -3,7 +3,6 @@ package com.finder.finder.service.message.impl;
 import com.finder.finder.helpers.ItemsHandler;
 import com.finder.finder.message.MessageSender;
 import com.finder.finder.model.Item;
-import com.finder.finder.service.UpdateService;
 import com.finder.finder.service.message.MessageItemsConverterService;
 import com.finder.finder.service.message.SendMessageService;
 import com.google.common.collect.Lists;
@@ -20,7 +19,19 @@ public class DefaultSendMessageService implements SendMessageService {
 
     private MessageSender messageSender;
     private MessageItemsConverterService messageItemsConverterService;
-    private UpdateService updateService;
+
+    @Override
+    public void sendNews(EditMessageText message, List<Item> items) {
+        if (!items.isEmpty()) {
+            List<List<Item>> itemsParts = Lists.partition(items, 5);
+            for (List<Item> itemPart : itemsParts) {
+                messageSender.sendMessage(getSendMessage(message, messageItemsConverterService.mapItems(itemPart)));
+            }
+        } else {
+            messageSender.sendMessage(getSendMessage(message, NO_NEWS_MESSAGE));
+        }
+
+    }
 
     @Override
     public void sendReligionNews(EditMessageText message, ItemsHandler itemsHandler) {
@@ -61,10 +72,5 @@ public class DefaultSendMessageService implements SendMessageService {
     @Autowired
     public void setMessageItemsConverterService(MessageItemsConverterService messageItemsConverterService) {
         this.messageItemsConverterService = messageItemsConverterService;
-    }
-
-    @Autowired
-    public void setUpdateService(UpdateService updateService) {
-        this.updateService = updateService;
     }
 }

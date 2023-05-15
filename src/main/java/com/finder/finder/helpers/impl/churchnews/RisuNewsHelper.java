@@ -1,4 +1,4 @@
-package com.finder.finder.helpers.impl.offchurch;
+package com.finder.finder.helpers.impl.churchnews;
 
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
@@ -20,9 +20,26 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
-public class RussianChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
+public class RisuNewsHelper extends AbstractRequestSenderService implements ItemsHandler {
 
-    private static Logger logger = LogManager.getLogger(RussianChurchHelper.class);
+    private static Logger logger = LogManager.getLogger(RisuNewsHelper.class);
+//
+//    {
+//        months.put("Cічня", "01");
+//        months.put("Лютого", "02");
+//        months.put("Березня", "03");
+//        months.put("Квітня", "04");
+//        months.put("Травня", "05");
+//        months.put("Червня", "06");
+//        months.put("Липня", "07");
+//        months.put("Серпня", "08");
+//        months.put("Вересня", "09");
+//        months.put("Жовтня", "10");
+//        months.put("Листопада", "11");
+//        months.put("Грудня", "12");
+//    }
+//
+
 
     private DatePublicationService datePublicationService;
 
@@ -32,7 +49,7 @@ public class RussianChurchHelper extends AbstractRequestSenderService implements
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(Rss.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            URL url = new URL("http://www.patriarchia.ru/rss/rss_news.rss");
+            URL url = new URL("https://risu.ua/rss.xml");
             rss = (Rss) unmarshaller.unmarshal(url);
         } catch (MalformedURLException | JAXBException e) {
             e.printStackTrace();

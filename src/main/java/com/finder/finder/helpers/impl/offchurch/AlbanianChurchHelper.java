@@ -3,7 +3,6 @@ package com.finder.finder.helpers.impl.offchurch;
 import com.darkprograms.speech.translator.GoogleTranslate;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
-import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +31,7 @@ public class AlbanianChurchHelper extends AbstractRequestSenderService implement
         HttpResponse<String> standardHttpResponse = null;
         try {
             logger.info("Starting to get news from AlbanianChurch");
-            standardHttpResponse = super.getStandardHttpResponse("https://orthodoxalbania.org/2020/en/news-en/");
+            standardHttpResponse = super.getStandardHttpResponse("https://orthodoxalbania.org/2020/en/feed/");
         } catch (
                 IOException exception) {
             exception.printStackTrace();

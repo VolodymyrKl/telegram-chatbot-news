@@ -1,87 +1,57 @@
 package com.finder.finder.helpers.impl.offchurch;
 
-import com.darkprograms.speech.translator.GoogleTranslate;
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
 import com.finder.finder.model.Item;
+import com.finder.finder.model.Rss;
+import com.finder.finder.service.DatePublicationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.net.http.HttpResponse;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class GOAAChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
 
     private static Logger logger = LogManager.getLogger(GOAAChurchHelper.class);
+    private DatePublicationService datePublicationService;
 
     @Override
     public List<Item> getItems() {
-        HttpResponse<String> standardHttpResponse = null;
+        Rss rss = null;
         try {
-            logger.info("Starting to get news from GOAAChurch");
-            standardHttpResponse = super.getStandardHttpResponse("https://www.goarch.org/news/recent-news/-/asset_publisher/gt9jYZFyZyFT/rss?p_p_cacheability=cacheLevelFull");
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        } catch (InterruptedException exception) {
-            exception.printStackTrace();
-        }
-        logger.info("News are received without issues, starting parsing.");
-        if (standardHttpResponse != null) {
-            Document document = Jsoup.parse(standardHttpResponse.body());
-
-            Elements elements = document.select("item");
-
-            List<Item> itemFulls = new ArrayList<>();
-            for (Element element : elements) {
-                if (isNewPublications(element)) {
-                    Item item = new Item();
-                    populateNewsItem(element, item);
-                    itemFulls.add(item);
-                }
-            }
-            logger.info("Items have been parsed.");
-            return itemFulls;
-        }
-        return new ArrayList<>();
-    }
-
-    private void populateNewsItem(Element element, Item item) {
-        try {
-            item.setTitle(GoogleTranslate.translate("en", "uk", element.select("title").get(0).text()));
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        Elements link = element.select("guid");
-        item.setLink(link.get(0).text());
-    }
-
-    private boolean isNewPublications(Element element) {
-        Elements pubdate = element.select("pubdate");
-        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
-        try {
-            Date parsedDate = formatter.parse(pubdate.get(0).text());
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String formattedDate = simpleDateFormat.format(parsedDate);
-
-            LocalDate dateOfPublication = LocalDate.parse(formattedDate);
-            LocalDate currentDate = LocalDate.now();
-
-//            return dateOfPublication.isBefore(currentDate);
-            return true;
-        } catch (java.text.ParseException e) {
+            JAXBContext jaxbContext = JAXBContext.newInstance(Rss.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            URL url = new URL("https://www.goarch.org/uk/news/recent-news/-/asset_publisher/gt9jYZFyZyFT/rss");
+            rss = (Rss) unmarshaller.unmarshal(url);
+        } catch (MalformedURLException | JAXBException e) {
             e.printStackTrace();
         }
-        return false;
+        if (Objects.nonNull(rss)) {
+            List<Item> items = rss.getChannel().getItems();
+            return items.stream()
+                    .filter(this::isTodayPublicationRss)
+                    .collect(Collectors.toList());
+        }
+        logger.info("Items have been parsed.");
+        return List.of();
+    }
+
+    private boolean isTodayPublicationRss(Item item) {
+        return datePublicationService.isTodayPublicationRss(item.getPubDate());
+    }
+
+    @Autowired
+    public void setDatePublicationService(DatePublicationService datePublicationService) {
+        this.datePublicationService = datePublicationService;
     }
 }

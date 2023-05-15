@@ -1,4 +1,4 @@
-package com.finder.finder.helpers.impl.offchurch;
+package com.finder.finder.helpers.impl.general;
 
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
@@ -20,9 +20,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
-public class RussianChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
+public class ZnHelper extends AbstractRequestSenderService implements ItemsHandler {
 
-    private static Logger logger = LogManager.getLogger(RussianChurchHelper.class);
+    private static Logger logger = LogManager.getLogger(ZnHelper.class);
 
     private DatePublicationService datePublicationService;
 
@@ -30,20 +30,22 @@ public class RussianChurchHelper extends AbstractRequestSenderService implements
     public List<Item> getItems() {
         Rss rss = null;
         try {
+            logger.info("Start getting news from zn.ua.");
             JAXBContext jaxbContext = JAXBContext.newInstance(Rss.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            URL url = new URL("http://www.patriarchia.ru/rss/rss_news.rss");
+            URL url = new URL("https://zn.ua/rss/full.rss");
             rss = (Rss) unmarshaller.unmarshal(url);
         } catch (MalformedURLException | JAXBException e) {
             e.printStackTrace();
         }
         if (Objects.nonNull(rss)) {
             List<Item> items = rss.getChannel().getItems();
+            logger.info("Items have been parsed.");
             return items.stream()
                     .filter(this::isTodayPublicationRss)
                     .collect(Collectors.toList());
         }
-        logger.info("Items have been parsed.");
+        logger.info("Items haven't been parsed, returning empty list.");
         return List.of();
     }
 

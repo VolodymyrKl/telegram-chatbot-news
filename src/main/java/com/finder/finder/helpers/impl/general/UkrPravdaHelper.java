@@ -1,4 +1,4 @@
-package com.finder.finder.helpers.impl.offchurch;
+package com.finder.finder.helpers.impl.general;
 
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
@@ -20,9 +20,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
-public class RussianChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
+public class UkrPravdaHelper extends AbstractRequestSenderService implements ItemsHandler {
 
-    private static Logger logger = LogManager.getLogger(RussianChurchHelper.class);
+    private static Logger logger = LogManager.getLogger(UkrPravdaHelper.class);
 
     private DatePublicationService datePublicationService;
 
@@ -32,7 +32,7 @@ public class RussianChurchHelper extends AbstractRequestSenderService implements
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(Rss.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            URL url = new URL("http://www.patriarchia.ru/rss/rss_news.rss");
+            URL url = new URL("https://www.pravda.com.ua/rss/");
             rss = (Rss) unmarshaller.unmarshal(url);
         } catch (MalformedURLException | JAXBException e) {
             e.printStackTrace();

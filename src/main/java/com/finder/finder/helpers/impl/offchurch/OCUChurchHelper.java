@@ -2,82 +2,55 @@ package com.finder.finder.helpers.impl.offchurch;
 
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
-import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
+import com.finder.finder.model.Rss;
+import com.finder.finder.service.DatePublicationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.net.http.HttpResponse;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class OCUChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
     private static Logger logger = LogManager.getLogger(OCUChurchHelper.class);
+    private DatePublicationService datePublicationService;
 
     @Override
     public List<Item> getItems() {
-        HttpResponse<String> standardHttpResponse = null;
+        Rss rss = null;
         try {
-            logger.info("Starting to get news from OCUChurch");
-            standardHttpResponse = super.getStandardHttpResponse("https://www.pomisna.info/uk/category/vsi-novyny/");
-        } catch (
-                IOException exception) {
-            exception.printStackTrace();
-        } catch (InterruptedException exception) {
-            exception.printStackTrace();
+            JAXBContext jaxbContext = JAXBContext.newInstance(Rss.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            URL url = new URL("https://www.pomisna.info/uk/category/vsi-novyny/feed/");
+            rss = (Rss) unmarshaller.unmarshal(url);
+        } catch (MalformedURLException | JAXBException e) {
+            e.printStackTrace();
         }
-        logger.info("News are received without issues, starting parsing.");
-        if (standardHttpResponse != null) {
-            Document document = Jsoup.parse(standardHttpResponse.body());
-            Elements elements = document.getElementsByTag("h3");
-            List<Item> items = new ArrayList<>();
-            for (int i = 0; i < elements.size(); i++) {
-                Element element = elements.get(i);
-
-                Elements dateElements = document.getElementsByClass("date-item");
-                if (isNewPublications(dateElements.get(i))) {
-                    Item item = new Item();
-
-                    populateNewsItem(element, item);
-
-                    items.add(item);
-                }
-            }
-            logger.info("Items have been parsed.");
-            return items;
+        if (Objects.nonNull(rss)) {
+            List<Item> items = rss.getChannel().getItems();
+            return items.stream()
+                    .filter(this::isTodayPublicationRss)
+                    .collect(Collectors.toList());
         }
-        return new ArrayList<>();
+        logger.info("Items have been parsed.");
+        return List.of();
     }
 
-    private void populateNewsItem(Element element, Item item) {
-        item.setTitle(element.text());
-        item.setLink(element.child(0).attr("href"));
+    private boolean isTodayPublicationRss(Item item) {
+        return datePublicationService.isTodayPublicationRss(item.getPubDate());
     }
 
-    private boolean isNewPublications(Element element) {
-        String datetime = element.text();
-        SimpleDateFormat formatter = new SimpleDateFormat("dd E yyyy");
-//        try {
-//            Date parsedDate = formatter.parse(datetime);
-//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//            String formattedDate = simpleDateFormat.format(parsedDate);
-//
-//            LocalDate dateOfPublication = LocalDate.parse(formattedDate);
-//            LocalDate currentDate = LocalDate.now();
-
-//            return dateOfPublication.isBefore(currentDate);
-        return true;
-//        } catch (java.text.ParseException e) {
-//            e.printStackTrace();
-//        }
-//        return false;
+    @Autowired
+    public void setDatePublicationService(DatePublicationService datePublicationService) {
+        this.datePublicationService = datePublicationService;
     }
 }

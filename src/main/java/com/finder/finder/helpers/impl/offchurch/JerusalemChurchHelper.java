@@ -2,88 +2,79 @@ package com.finder.finder.helpers.impl.offchurch;
 
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
-import com.finder.finder.helpers.impl.news.RisuNewsHelper;
 import com.finder.finder.model.Item;
+import com.finder.finder.model.Rss;
+import com.finder.finder.service.DatePublicationService;
+import com.finder.finder.service.ItemsService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.http.HttpResponse;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class JerusalemChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
 
     private static Logger logger = LogManager.getLogger(JerusalemChurchHelper.class);
 
+    private DatePublicationService datePublicationService;
+    private ItemsService itemsService;
+
     @Override
     public List<Item> getItems() {
-
-        HttpResponse<String> standardHttpResponse = null;
-        try {
-            logger.info("Starting to get news from JerusalemChurch");
-            standardHttpResponse = super.getStandardHttpResponse("https://ru.jerusalem-patriarchate.info/blog");
-        } catch (
-                IOException exception) {
-            exception.printStackTrace();
-        } catch (InterruptedException exception) {
-            exception.printStackTrace();
-        }
-        logger.info("News are received without issues, starting parsing.");
-        if (standardHttpResponse != null) {
-            Document document = Jsoup.parse(standardHttpResponse.body());
-            Elements content = document.getElementsByClass("content");
-            List<Item> itemFulls = new ArrayList<>();
-            for (Element element : content) {
-                if (isNewPublications(element)) {
-                    Item item = new Item();
-
-                    populateNewsItem(element, item);
-
-                    itemFulls.add(item);
-                }
+        Rss rss = null;
+//        try {
+//            JAXBContext jaxbContext = JAXBContext.newInstance(Rss.class);
+//            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+//            URL url = new URL("https://jerusalem-patriarchate.info/feed/");
+//            rss = (Rss) unmarshaller.unmarshal(url);
+//        } catch (MalformedURLException | JAXBException e) {
+//            e.printStackTrace();
+//        }
+        if (Objects.nonNull(rss)) {
+            List<Item> items = rss.getChannel().getItems();
+            List<Item> filteredItems = items.stream()
+                    .filter(this::isTodayPublicationRss)
+                    .collect(Collectors.toList());
+            for (Item item : filteredItems) {
+                item.setTitle(itemsService.translateItem("el", "uk", item.getTitle()));
+                item.setDescription(itemsService.translateItem("el", "uk", item.getDescription()));
             }
-            logger.info("Items have been parsed.");
-            return itemFulls;
+            return filteredItems;
         }
-        return new ArrayList<>();
+        logger.info("Items have been parsed.");
+        return List.of();
     }
 
-    private void populateNewsItem(Element element, Item item) {
-        Elements entryTitle = getEntryTitle(element);
-        item.setTitle(entryTitle.text());
-        item.setLink(entryTitle.get(0).children().get(0).attr("href"));
+    private boolean isTodayPublicationRss(Item item) {
+        return datePublicationService.isTodayPublicationRss(item.getPubDate());
     }
 
-    private Elements getEntryTitle(Element element) {
-        return element.getElementsByClass("title");
+    @Autowired
+    public void setDatePublicationService(DatePublicationService datePublicationService) {
+        this.datePublicationService = datePublicationService;
     }
 
-    private boolean isNewPublications(Element element) {
-        String datetime = element.getElementsByClass("top-meta date").text();
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        try {
-            Date parsedDate = formatter.parse(datetime);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String formattedDate = simpleDateFormat.format(parsedDate);
-
-            LocalDate dateOfPublication = LocalDate.parse(formattedDate);
-            LocalDate currentDate = LocalDate.now();
-
-//            return dateOfPublication.isBefore(currentDate);
-            return true;
-        } catch (java.text.ParseException e) {
-            e.printStackTrace();
-        }
-        return false;
+    @Autowired
+    public void setItemsService(ItemsService itemsService) {
+        this.itemsService = itemsService;
     }
 }

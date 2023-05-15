@@ -1,10 +1,11 @@
-package com.finder.finder.helpers.impl.offchurch;
+package com.finder.finder.helpers.impl.general;
 
 import com.finder.finder.helpers.AbstractRequestSenderService;
 import com.finder.finder.helpers.ItemsHandler;
 import com.finder.finder.model.Item;
 import com.finder.finder.model.Rss;
 import com.finder.finder.service.DatePublicationService;
+import com.finder.finder.service.ItemsService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
-public class RussianChurchHelper extends AbstractRequestSenderService implements ItemsHandler {
+public class PoliticoHelper extends AbstractRequestSenderService implements ItemsHandler {
 
-    private static Logger logger = LogManager.getLogger(RussianChurchHelper.class);
-
+    private static Logger logger = LogManager.getLogger(PoliticoHelper.class);
     private DatePublicationService datePublicationService;
+    private ItemsService itemsService;
 
     @Override
     public List<Item> getItems() {
@@ -32,16 +33,22 @@ public class RussianChurchHelper extends AbstractRequestSenderService implements
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(Rss.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            URL url = new URL("http://www.patriarchia.ru/rss/rss_news.rss");
+            URL url = new URL("https://www.politico.eu/feed/");
             rss = (Rss) unmarshaller.unmarshal(url);
         } catch (MalformedURLException | JAXBException e) {
             e.printStackTrace();
         }
         if (Objects.nonNull(rss)) {
             List<Item> items = rss.getChannel().getItems();
-            return items.stream()
+            List<Item> filteredItems = items.stream()
                     .filter(this::isTodayPublicationRss)
                     .collect(Collectors.toList());
+            for (Item item : filteredItems) {
+                item.setTitle(itemsService.translateItem("en", "uk", item.getTitle()));
+                item.setDescription(null);
+//                item.setDescription(itemsService.translateItem("en", "uk", item.getDescription()));
+            }
+            return filteredItems;
         }
         logger.info("Items have been parsed.");
         return List.of();
@@ -54,5 +61,10 @@ public class RussianChurchHelper extends AbstractRequestSenderService implements
     @Autowired
     public void setDatePublicationService(DatePublicationService datePublicationService) {
         this.datePublicationService = datePublicationService;
+    }
+
+    @Autowired
+    public void setItemsService(ItemsService itemsService) {
+        this.itemsService = itemsService;
     }
 }
